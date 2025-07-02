@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import pandas as pd
-from sklearn.covariance import graphical_lasso
+from sklearn.covariance import GraphicalLassoCV
 import logging
 from time import perf_counter
 import warnings
@@ -24,7 +24,8 @@ eps_n_points = 10
 d = 0.1
 reg_param = 0.1
 t_dof = 3
-experiment_name = 'glassoRobustness'
+experiment_name = 'glassoCVRobustness_n100'
+MAX_WORKERS=32
 
 def run_model(eps, n_model):
     result_metrics = list()
@@ -37,10 +38,10 @@ def run_model(eps, n_model):
 
     for n_repl in range(S_obs):
         data = sample_from_mixed(n, covar, eps, t_dof)
-        emp_cov = np.cov(data, rowvar=False)
         
         try:
-            _, emp_prec = graphical_lasso(emp_cov, reg_param)
+            gl = GraphicalLassoCV(assume_centered=True).fit(data)
+            emp_prec = gl.get_precision()
         except:
             continue
 
@@ -58,11 +59,11 @@ def run_model(eps, n_model):
 
 def main():
     #cluster = LocalCluster()
-    cluster = SLURMCluster()
-    cluster.adapt(minimum=1, maximum=100)
-
+    cluster = SLURMCluster(cores=1, memory='16GB', header_skip=['--mem'], env_extra=[
+        "export PYTHONPATH=/home/ikostylev/robustEGMS/experiment_runners:$PYTHONPATH"
+    ])
+    cluster.scale(MAX_WORKERS)
     client = cluster.get_client()
-
     results = pd.DataFrame()
 
     for eps in np.linspace(0, 1, eps_n_points):
