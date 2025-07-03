@@ -42,7 +42,7 @@ def run_model(eps, n_model):
         try:
             emp_cov = np.cov(data, rowvar=False)
             reg_param = RobustSelection(data, 0.95)
-            emp_prec = graphical_lasso(emp_cov, reg_param)
+            _, emp_prec = graphical_lasso(emp_cov, reg_param)
         except:
             continue
 
