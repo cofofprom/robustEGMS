@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import pandas as pd
-from sklearn.covariance import MinCovDet
+from sklearn.covariance import graphical_lasso
 import logging
 from time import perf_counter
 import warnings
@@ -17,20 +17,20 @@ logger = logging.getLogger()
 # random.seed(24142)
 
 N = 30
-n = 100
-S_sg = 1000
-S_obs = 200
+n = 20
+S_sg = 500
+S_obs = 100
 eps_n_points = 10
 d = 0.1
 reg_param = 0.1
 t_dof = 3
-experiment_name = 'MCDRobustness_n20'
+experiment_name = 'DS_glassoRobustness_n20'
 MAX_WORKERS=32
 
 def run_model(eps, n_model):
     result_metrics = list()
 
-    precision = generate_dominant_diagonal(N, d)
+    precision = generate_diagonal_shift(N, d)
     covar = np.linalg.inv(precision)
 
     upper_diagonal = np.triu_indices_from(precision, k=1)
@@ -40,8 +40,8 @@ def run_model(eps, n_model):
         data = sample_from_mixed(n, covar, eps, t_dof)
         
         try:
-            mcd = MinCovDet(assume_centered=True).fit(data)
-            emp_prec = mcd.get_precision()
+            emp_cov = np.cov(data, rowvar=False)
+            _, emp_prec = graphical_lasso(emp_cov, reg_param)
         except:
             continue
 
@@ -59,7 +59,7 @@ def run_model(eps, n_model):
 
 def main():
     #cluster = LocalCluster()
-    cluster = SLURMCluster(cores=1, memory='16GB', header_skip=['--mem'], env_extra=[
+    cluster = SLURMCluster(cores=1, memory='16GB', walltime='02:00:00', header_skip=['--mem'], env_extra=[
         "export PYTHONPATH=/home/ikostylev/robustEGMS/experiment_runners:$PYTHONPATH"
     ])
     cluster.scale(MAX_WORKERS)

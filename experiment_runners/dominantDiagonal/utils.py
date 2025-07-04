@@ -29,6 +29,27 @@ def generate_dominant_diagonal(dim, density):
 
     return prec
 
+def generate_diagonal_shift(dim, density, norm_diag=True):
+    graph = nx.gnp_random_graph(dim, density)
+    adj = nx.adjacency_matrix(graph).toarray()
+
+    A = np.random.uniform(0.5, 1, size=(dim, dim))
+    B = np.random.choice([-1, 1], size=(dim, dim))
+
+    prec = adj * A * B
+    prec = (prec + prec.T) / 2 + np.eye(dim)
+    min_eig = np.min(np.linalg.eigvals(prec))
+
+    prec[np.diag_indices_from(prec)] += np.abs(min_eig) + 0.1
+
+    if norm_diag:
+        D = np.diag(1 / np.sqrt(np.diag(prec)))
+        prec = D @ prec @ D
+    
+    print(prec.diag())
+
+    return prec
+
 def evaluate(true_edges, pred_edges):
     conf = confusion_matrix(true_edges, pred_edges)
     tn = conf[0, 0]
