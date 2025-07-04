@@ -60,7 +60,7 @@ def run_model(eps, n_model):
 def main():
     #cluster = LocalCluster()
     cluster = SLURMCluster(cores=1, memory='16GB', walltime='02:00:00', header_skip=['--mem'], env_extra=[
-        "export PYTHONPATH=/home/ikostylev/robustEGMS/experiment_runners:$PYTHONPATH"
+        "export PYTHONPATH=/home/ikostylev/robustEGMS/experiment_runners/diagonalShift:$PYTHONPATH"
     ])
     cluster.scale(MAX_WORKERS)
     client = cluster.get_client()
