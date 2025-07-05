@@ -1,6 +1,6 @@
 import numpy as np
 import networkx as nx
-from scipy.stats import multivariate_normal, multivariate_t, hmean
+from scipy.stats import multivariate_normal, multivariate_t, hmean, kendalltau
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 
@@ -101,3 +101,16 @@ def draw_plots(experiment_name, results_df):
     fig.set_size_inches(10, 5)
     
     fig.savefig(f'plots/{experiment_name}.png', bbox_inches='tight')
+
+def kendall_corr_mat(data):
+    dim = data.shape[1]
+    matrix = np.array([[kendalltau(data[:, i], data[:, j]).statistic
+                        for j in range(dim)] for i in range(dim)])
+
+    return matrix
+
+def pearson_corr_via_kendall(data):
+    kcorr_mat = kendall_corr_mat(data)
+    pearson_corr = np.sin(np.pi / 2 * kcorr_mat)
+
+    return pearson_corr
