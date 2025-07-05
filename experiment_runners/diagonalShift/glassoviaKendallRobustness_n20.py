@@ -18,8 +18,8 @@ logger = logging.getLogger()
 
 N = 30
 n = 20
-S_sg = 500
-S_obs = 100
+S_sg = 125
+S_obs = 40
 eps_n_points = 10
 d = 0.1
 reg_param = 0.1
@@ -59,7 +59,7 @@ def run_model(eps, n_model):
 
 def main():
     #cluster = LocalCluster()
-    cluster = SLURMCluster(cores=1, memory='16GB', walltime='02:00:00', header_skip=['--mem'], env_extra=[
+    cluster = SLURMCluster(cores=1, memory='16GB', walltime='05:00:00', header_skip=['--mem'], env_extra=[
         "export PYTHONPATH=/home/ikostylev/robustEGMS/experiment_runners/diagonalShift:$PYTHONPATH"
     ])
     cluster.scale(MAX_WORKERS)
@@ -86,7 +86,7 @@ def main():
         eps_result['epsilon'] = eps 
         results = pd.concat([results, eps_result], ignore_index=True)
     
-    results.to_csv(f'data/{experiment_name}.csv', index=False)
+    results.to_csv(f'/home/ikostylev/robustEGMS/data/{experiment_name}.csv', index=False)
 
     draw_plots(experiment_name, results)
 
