@@ -1,6 +1,6 @@
 import numpy as np
 import networkx as nx
-from scipy.stats import multivariate_normal, multivariate_t, hmean
+from scipy.stats import multivariate_normal, multivariate_t, hmean, kendalltau
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 
@@ -45,8 +45,6 @@ def generate_diagonal_shift(dim, density, norm_diag=True):
     if norm_diag:
         D = np.diag(1 / np.sqrt(np.diag(prec)))
         prec = D @ prec @ D
-    
-    print(prec.diag())
 
     return prec
 
@@ -103,3 +101,34 @@ def draw_plots(experiment_name, results_df):
     fig.set_size_inches(10, 5)
     
     fig.savefig(f'plots/{experiment_name}.png', bbox_inches='tight')
+
+
+def kendall_corr_mat(data):
+    dim = data.shape[1]
+    matrix = np.array([[kendalltau(data[:, i], data[:, j]).statistic
+                        for j in range(dim)] for i in range(dim)])
+
+    return matrix
+
+def pearson_corr_via_kendall(data):
+    kcorr_mat = kendall_corr_mat(data)
+    pearson_corr = np.sin(np.pi / 2 * kcorr_mat)
+
+    return pearson_corr
+
+def fechner_corr(x, y):
+    ind = ((x - np.mean(x))*(y - np.mean(y)))
+    res = (np.sum((ind >= 0)) - np.sum((ind < 0))) / len(x)
+    return res
+
+def fechner_corr_mat(data):
+    dim = data.shape[1]
+    matrix = np.array([[fechner_corr(data[:, i], data[:, j]) for j in range(dim)] for i in range(dim)])
+
+    return matrix
+
+def pearson_corr_via_fechner(data):
+    fcorr_mat = fechner_corr_mat(data)
+    pearson_corr = np.sin(np.pi / 2 * fcorr_mat)
+
+    return pearson_corr
