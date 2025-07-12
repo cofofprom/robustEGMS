@@ -3,7 +3,6 @@ import networkx as nx
 from scipy.stats import multivariate_normal, multivariate_t, hmean, kendalltau
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
-import cvxpy as cp
 
 def sample_from_mixed(n, cov, eps, dof):
     dim = cov.shape[0]
