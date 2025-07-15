@@ -4,8 +4,8 @@ GLOBAL_CONFIG = {
     'd': 0.1,
     'student_dof': 3,
     'n_eps_points': 10,
-    'S_sg': 1,
-    'S_obs': 1,
+    'S_sg': 10,
+    'S_obs': 10,
     'glasso_reg_param': 0.1,
 }
 
